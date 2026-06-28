@@ -1,0 +1,7 @@
+@mixin animation-bg($background: #000) {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: $background;
+}

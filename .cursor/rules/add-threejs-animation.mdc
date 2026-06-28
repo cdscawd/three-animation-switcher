@@ -1,0 +1,89 @@
+---
+description: 新增 Three.js 全屏背景动画的标准流程
+globs: src/animations/**,src/engine/**,src/hooks/**,src/params/**,src/context/**,src/components/**/*Background/**,src/components/ConfigPanel/**
+alwaysApply: false
+---
+
+# 新增动画 Checklist
+
+按顺序完成，不要改无关文件。
+
+## 1. 引擎 `src/engine/<id>/`
+
+选择类型：
+
+| kind | 适用 | 基类/模式 |
+|------|------|-----------|
+| `three-scene` | 多 mesh、相机、GSAP | 独立 `*Engine.ts`（参考 `cyberspace/`） |
+| `three-shader` | 单 ShaderMaterial + 纹理 | 独立引擎（参考 `starship/StarshipShaderEngine.ts`） |
+| `fullscreen-shader` | 全屏 WebGL1 quad | 继承 `FullscreenShaderEngine`（参考 `phosphor/`、`atc/`） |
+
+引擎构造函数签名：
+
+```typescript
+constructor({ containerEl }: { containerEl: HTMLElement })
+```
+
+Shader 放 `shaders/*.vert.glsl` / `*.frag.glsl`，用 `?raw` 导入。WebGL2/Three GLSL3 用 `out vec4 outColor`；WebGL1 全屏用 `gl_FragColor`。
+
+## 2. Hook — `src/hooks/backgroundEngines.ts`
+
+```typescript
+export const useMyBackground = createBackgroundEngineHook(
+  MyShaderEngine,
+  'MyShaderEngine',
+)
+```
+
+Hook 自动订阅 `AnimationParamsProvider` 并调用 `engine.applyParams`；无需改 hook 工厂逻辑。
+
+## 3. React 组件 — `src/components/MyBackground/`
+
+```tsx
+export function MyBackground() {
+  return <BackgroundShell className="my-bg" useEngine={useMyBackground} />
+}
+```
+
+配套 `MyBackground.scss`：`.my-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #000; }`
+
+## 4. 注册 — 两处必改
+
+**`src/animations/types.ts`** — 追加菜单项：
+
+```typescript
+{ id: 'my-id', label: 'My Animation' },
+```
+
+**`src/animations/registry.tsx`** — 追加 registry 条目：
+
+```typescript
+{
+  id: 'my-id',
+  label: 'My Animation',
+  kind: 'fullscreen-shader',
+  component: MyBackground,
+},
+```
+
+`Home.tsx` 无需修改，菜单、面板与切换由 registry + Provider 驱动。
+
+## 5. 参数（可选）— `src/params/schemas.ts` + 引擎 `applyParams`
+
+有可调项时：
+
+1. 在 `PARAM_SCHEMAS` 为 `id` 追加 `ParamField[]`（无参数写 `[]`）
+2. 引擎实现 `applyParams`，把 `params` 写到 uniform / scene 状态
+
+详见 `animation-params-panel.mdc`（WebGL1 循环常量、starship 累积循环限制等）。
+
+## 6. 还原外部 shader 时
+
+先找官方 bundle / 源码，不要假设 gist 与 21st.dev 组件相同（如 Starship 为 adapted shader + DataTexture，非 snoise 原版）。
+
+## 禁止
+
+- 不要在一个页面同时 mount 多个背景引擎
+- 不要在 `engine/` 里 import React
+- 不要为单个动画单独改 `Home.tsx` 的条件分支
+- 不要只加 schema 不实现 `applyParams`

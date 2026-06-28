@@ -1,0 +1,51 @@
+---
+description: Three.js 引擎与 GLSL shader 编写约定
+globs: src/engine/**/*.ts,src/engine/**/*.glsl
+alwaysApply: false
+---
+
+# Three.js Engine 约定
+
+## 生命周期
+
+```typescript
+load(): void    // append canvas、resize、监听、startLoop
+dispose(): void // stopLoop、removeListeners、dispose GPU 资源、remove canvas
+applyParams?(params: ParamValues): void  // 可选，实时调参，不重建 GL 上下文
+```
+
+`createBackgroundEngineHook` 在 `load()` 后与 `values` 变化时调用 `applyParams`。
+
+## FullscreenShaderEngine 子类
+
+只需实现 `getVertexSource()` / `getFragmentSource()`，在 constructor 传：
+
+- `clearColor: [r,g,b]` — 0–1
+- `alpha` — 仅 shader 声明 `uniform float alpha` 时使用
+- `resolutionScale` — `<1` 低分辨率放大，块状像素风格（ATC 用 0.5）
+- `floatUniforms` — fragment 中 `uniform float` 名 → 初始值；由 `applyParams` 更新
+
+## Three.js ShaderMaterial 引擎
+
+参考 `StarshipShaderEngine`：
+
+- `OrthographicCamera(-1,1,1,-1,0,1)` + `PlaneGeometry(2,2)`
+- `glslVersion: GLSL3`，fragment 输出 `outColor`
+- `WebGLRenderer({ alpha: true })`，`setClearColor(0x000000, 0)` — 与 liquidglass 滤镜兼容
+- `setPixelRatio(Math.min(devicePixelRatio, 2))`
+- canvas `pointer-events: none`，容器 `aria-hidden`
+- 累积型 fragment 循环不要随意加 `break` 或 uniform 循环上界（见 `animation-params-panel.mdc`）
+
+## Cyberspace 类场景引擎
+
+- 逻辑放 `engine/<name>/space|core|config|shaders/`
+- 共用工具放 `engine/<name>/utils/`，勿跨动画引用其他 `engine/*` 目录
+- 运行时可调项通过 `SpaceManager.applyParams` 写 uniform / fog / light
+
+## GLSL 导入与参数化
+
+`vite-env.d.ts` 已声明 `*.glsl?raw`。Cyberspace 用 GLSL3 + `out vec4 outColor`；FullscreenShaderEngine 用 WebGL1 + `gl_FragColor`。
+
+**WebGL1**（`fullscreen-shader`）：`for` 上界用 `#define MAX_ITERATIONS` 常量；`uIterations` 仅用于循环内 `if (i >= uIterations) break`。
+
+**GLSL3 累积循环**（如 starship）：保持原版循环结构；参数化前阅读 `animation-params-panel.mdc` 限制。

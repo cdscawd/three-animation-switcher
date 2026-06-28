@@ -1,0 +1,5 @@
+@use '../../styles/animation-bg';
+
+.shader-lines-bg {
+  @include animation-bg.animation-bg(#000);
+}

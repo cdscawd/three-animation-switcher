@@ -1,0 +1,13 @@
+.home {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+
+  &__menu {
+    position: fixed;
+    top: 50%;
+    left: 24px;
+    z-index: 1;
+    translate: 0 -50%;
+  }
+}

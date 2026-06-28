@@ -1,0 +1,10 @@
+@use '../../styles/animation-bg';
+
+.atc-bg {
+  @include animation-bg.animation-bg(#000);
+
+  canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+}

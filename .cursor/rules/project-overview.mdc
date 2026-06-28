@@ -1,0 +1,47 @@
+---
+description: three-animation-switcher 项目结构与动画切换约定
+alwaysApply: true
+---
+
+# three-animation-switcher
+
+Vite + React 19 + TypeScript + Three.js 全屏背景动画切换器。左侧 `MenuLiquidGlass` 切换背景，右侧 `ConfigPanel` 实时调参；同时只挂载一个 WebGL 引擎。
+
+## 目录结构
+
+```
+src/
+  animations/          # 动画注册表（菜单 + 组件映射）
+  params/              # 各动画 ParamSchema + 默认值
+  context/             # AnimationParamsProvider
+  components/
+    BackgroundShell/   # 通用背景挂载壳（ref + aria-hidden）
+    ConfigPanel/       # 右侧 liquidglass 参数面板
+    *Background/       # 各动画 React 入口 + scss
+    GlassMount.tsx     # liquidglass 延迟挂载
+  engine/
+    types.ts           # BackgroundEngine（含 applyParams?）
+    shared/            # FullscreenShaderEngine 基类
+    cyberspace/        # 多对象 Three.js 场景
+    starship/          # Three.js ShaderMaterial 全屏
+    phosphor/          # 继承 FullscreenShaderEngine
+    atc/               # 继承 FullscreenShaderEngine
+  hooks/
+    createBackgroundEngineHook.ts
+    backgroundEngines.ts
+  pages/Home/          # Provider + 菜单 + 面板 + ActiveBackground
+```
+
+## 切换原则
+
+- 用 `key={activeAnimation}` 卸载旧引擎，避免多 WebGL 上下文并存
+- 引擎必须实现 `load()` / `dispose()`，在 dispose 中释放 geometry、material、texture、renderer
+- 可选 `applyParams(params)` 接收实时参数，**禁止**为此重建 WebGL 上下文
+- 页面隐藏时停止 rAF（引擎内处理 visibilitychange）
+- 不要引入 `@react-three/fiber`，除非用户明确要求；优先 raw Three.js 或 WebGL1 全屏引擎
+
+## 相关规则
+
+- 新增动画：见 `add-threejs-animation.mdc`
+- 参数面板：见 `animation-params-panel.mdc`
+- 引擎 / shader 文件：见 `threejs-engine.mdc`

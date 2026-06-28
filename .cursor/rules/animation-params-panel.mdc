@@ -1,0 +1,122 @@
+---
+description: 右侧参数配置面板 — schema、Context、引擎 applyParams、导出
+globs: src/params/**,src/context/**,src/components/ConfigPanel/**,src/hooks/createBackgroundEngineHook.ts
+alwaysApply: false
+---
+
+# 参数配置面板
+
+Home 右侧 `ConfigPanel` 展示当前动画可调参数，滑块改动实时推送到引擎；支持 Reset / Copy JSON / Export。
+
+## 数据流
+
+```
+AnimationParamsProvider(animationId)
+  ├── ConfigPanel          ← 读 schema + values，写 setParam
+  └── *Background
+        └── createBackgroundEngineHook
+              ├── load 后 applyParams(initial)
+              └── values 变化时 applyParams(live)
+```
+
+- 参数按 `AnimationId` **分动画存储**，切换菜单不会串值，也不会清掉其它动画已调过的值
+- `BackgroundShell` / `*Background` 不接收 params props；引擎 hook 内部 `useAnimationParams()`
+
+## 目录
+
+```
+src/
+  params/
+    types.ts       # ParamField / ParamSchema / ParamValues
+    schemas.ts     # PARAM_SCHEMAS: Record<AnimationId, ParamSchema>
+    index.ts
+  context/
+    AnimationParamsContext.tsx   # Provider + useAnimationParams
+  components/ConfigPanel/
+    ConfigPanel.tsx              # @gatsby/liquidglassui UI
+    ConfigPanel.scss             # 仅定位/布局，不做毛玻璃
+```
+
+## 新增动画参数 — 必做两步
+
+### 1. Schema — `src/params/schemas.ts`
+
+为 `AnimationId` 追加条目（无参数则 `[]`，面板显示 empty 文案）：
+
+```typescript
+{
+  key: 'particleSpeed',
+  label: 'Particle speed',
+  type: 'range',
+  min: 1,
+  max: 30,
+  step: 0.5,
+  default: 14,
+},
+```
+
+`key` 与引擎 `applyParams` 读取的字段名一致。`default` 必须与引擎/shader 初始值相同。
+
+### 2. 引擎 — 实现 `applyParams(params: ParamValues)`
+
+`BackgroundEngine` 可选方法（见 `src/engine/types.ts`）。**禁止**为改参数而重建 renderer / 重链 shader program。
+
+| kind | 参考实现 |
+|------|----------|
+| `fullscreen-shader` | `FullscreenShaderEngine.applyParams` + 子类映射；`floatUniforms` 声明 shader uniform |
+| `three-scene` | `CyberspaceBackgroundEngine.applyParams` → `SpaceManager.applyParams` |
+| `three-shader` | 仅当 shader 结构允许时再加；见下方 shader 限制 |
+
+## FullscreenShaderEngine 参数
+
+constructor 传 `floatUniforms: { uFoo: 1.0 }`，fragment 声明同名 `uniform float uFoo`。
+
+子类 `applyParams` 把 schema key 映射到 uniform 名：
+
+```typescript
+applyParams(params: ParamValues): void {
+  super.applyParams({
+    ...params,
+    uIterations: params.iterations,
+    resolutionScale: params.resolutionScale,
+  })
+}
+```
+
+基类已处理 `resolutionScale` / `alpha` 与 `floatUniforms` 写入。
+
+## WebGL1 shader 参数化（phosphor / atc）
+
+- **循环上界必须是编译期常量**（`#define MAX_ITERATIONS 80.0`），不能用 uniform 作 `for` 条件
+- 用 uniform 控制实际迭代：`if (i >= uIterations) break;`
+- 改 shader 后需在浏览器确认 compile 成功（失败时 canvas 为空）
+
+## GLSL3 累积循环（starship 等）
+
+- **不要在 raymarching 累积循环里用 `break` / 改动态上界**，易破坏 `S` 累加导致全屏发白
+- `starship` 当前 schema 为 `[]`，保持原版 fragment；待安全参数化方案再开 schema
+- `three-shader` 引擎 renderer 用 `alpha: true` + `setClearColor(0x000000, 0)`，与 liquidglass 共存
+
+## ConfigPanel UI
+
+- 组件来自 `@gatsby/liquidglassui`：`CardLiquidGlass`、`SliderLiquidGlass`、`ButtonLiquidGlass` 等
+- 与左侧菜单共用毛玻璃参数：`{ borderRadius: 12, strength: 2.35, edgeFalloff: 18 }`，`filterMode="filter"`
+- 面板用 `GlassMount` 延迟挂载（与菜单一致）
+- **不要**在 `ConfigPanel.scss` 手写 backdrop-filter 毛玻璃
+
+## 导出 JSON 格式
+
+```json
+{
+  "animationId": "atc",
+  "label": "ATC Shader",
+  "params": { "iterations": 50, "timeScale": 0.2 }
+}
+```
+
+## 禁止
+
+- 不要在 `Home.tsx` 为单个动画写参数分支
+- 不要绕过 Context 向引擎传参（除非重构整体方案）
+- 不要为调参卸载/recreate 引擎（`key={activeAnimation}` 仅用于切换动画）
+- schema 有字段但引擎未实现 `applyParams` 映射
