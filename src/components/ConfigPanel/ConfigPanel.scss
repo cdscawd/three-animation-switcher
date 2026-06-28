@@ -45,6 +45,18 @@
       align-items: center;
       justify-content: space-between;
     }
+
+    &--boolean {
+      min-height: 32px;
+    }
+  }
+
+  &__checkbox {
+    flex-shrink: 0;
+    width: auto !important;
+    height: auto !important;
+    min-height: 28px;
+    padding: 4px 8px !important;
   }
 
   &__field-head {

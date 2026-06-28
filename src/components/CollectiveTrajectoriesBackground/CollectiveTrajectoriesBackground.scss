@@ -1,0 +1,5 @@
+@use '../../styles/animation-bg';
+
+.collective-trajectories-bg {
+  @include animation-bg.animation-bg(#001010);
+}

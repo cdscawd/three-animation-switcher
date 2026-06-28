@@ -2,9 +2,11 @@ import { createBackgroundEngineHook } from './createBackgroundEngineHook'
 import { AnomalousMatterEngine } from '../engine/anomalous-matter/AnomalousMatterEngine'
 import { AtcShaderEngine } from '../engine/atc/AtcShaderEngine'
 import { CathedralShaderEngine } from '../engine/cathedral/CathedralShaderEngine'
+import { CollectiveTrajectoriesEngine } from '../engine/collective-trajectories/CollectiveTrajectoriesEngine'
 import { FirefliesShaderEngine } from '../engine/fireflies/FirefliesShaderEngine'
 import { CyberspaceBackgroundEngine } from '../engine/cyberspace/CyberspaceBackgroundEngine'
 import { GridShaderEngine } from '../engine/grid-shader/GridShaderEngine'
+import { KaleidoscopeEngine } from '../engine/kaleidoscope/KaleidoscopeEngine'
 import { LabShaderEngine } from '../engine/lab/LabShaderEngine'
 import { LaunchShaderEngine } from '../engine/launch/LaunchShaderEngine'
 import { PhosphorShaderEngine } from '../engine/phosphor/PhosphorShaderEngine'
@@ -76,4 +78,14 @@ export const useGridShaderBackground = createBackgroundEngineHook(
 export const useFirefliesBackground = createBackgroundEngineHook(
   FirefliesShaderEngine,
   'FirefliesShaderEngine',
+)
+
+export const useCollectiveTrajectoriesBackground = createBackgroundEngineHook(
+  CollectiveTrajectoriesEngine,
+  'CollectiveTrajectoriesEngine',
+)
+
+export const useKaleidoscopeBackground = createBackgroundEngineHook(
+  KaleidoscopeEngine,
+  'KaleidoscopeEngine',
 )

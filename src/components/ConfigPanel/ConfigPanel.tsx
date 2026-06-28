@@ -82,13 +82,19 @@ function ParamControl({
   if (field.type === "boolean") {
     const checked = typeof value === "boolean" ? value : field.default;
     return (
-      <CheckboxLiquidGlass
-        filterMode="filter"
-        glassParams={GLASS_PARAMS}
-        label={field.label}
-        checked={checked}
-        onCheckedChange={onChange}
-      />
+      <div className="config-panel__field config-panel__field--row config-panel__field--boolean">
+        <TypographyLiquidGlass.Text className="config-panel__label">
+          {field.label}
+        </TypographyLiquidGlass.Text>
+        <CheckboxLiquidGlass
+          filterMode="surface"
+          glassParams={BUTTON_GLASS_PARAMS}
+          checked={checked}
+          onCheckedChange={onChange}
+          aria-label={field.label}
+          className="config-panel__checkbox"
+        />
+      </div>
     );
   }
 

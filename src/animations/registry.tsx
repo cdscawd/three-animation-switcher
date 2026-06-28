@@ -1,9 +1,11 @@
 import { AnomalousMatterBackground } from '../components/AnomalousMatterBackground/AnomalousMatterBackground'
 import { AtcBackground } from '../components/AtcBackground/AtcBackground'
 import { CathedralBackground } from '../components/CathedralBackground/CathedralBackground'
+import { CollectiveTrajectoriesBackground } from '../components/CollectiveTrajectoriesBackground/CollectiveTrajectoriesBackground'
 import { FirefliesBackground } from '../components/FirefliesBackground/FirefliesBackground'
 import { CyberspaceBackground } from '../components/CyberspaceBackground/CyberspaceBackground'
 import { GridShaderBackground } from '../components/GridShaderBackground/GridShaderBackground'
+import { KaleidoscopeBackground } from '../components/KaleidoscopeBackground/KaleidoscopeBackground'
 import { LabBackground } from '../components/LabBackground/LabBackground'
 import { LaunchBackground } from '../components/LaunchBackground/LaunchBackground'
 import { PhosphorBackground } from '../components/PhosphorBackground/PhosphorBackground'
@@ -93,6 +95,18 @@ export const ANIMATION_REGISTRY: AnimationDefinition[] = [
     label: 'Fireflies',
     kind: 'fullscreen-shader',
     component: FirefliesBackground,
+  },
+  {
+    id: 'collective-trajectories',
+    label: 'Collective Trajectories',
+    kind: 'three-scene',
+    component: CollectiveTrajectoriesBackground,
+  },
+  {
+    id: 'kaleidoscope',
+    label: 'Kaleidoscope',
+    kind: 'three-shader',
+    component: KaleidoscopeBackground,
   },
 ]
 
