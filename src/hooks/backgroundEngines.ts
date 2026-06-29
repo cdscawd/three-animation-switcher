@@ -6,7 +6,6 @@ import { CollectiveTrajectoriesEngine } from '../engine/collective-trajectories/
 import { FirefliesShaderEngine } from '../engine/fireflies/FirefliesShaderEngine'
 import { CyberspaceBackgroundEngine } from '../engine/cyberspace/CyberspaceBackgroundEngine'
 import { GridShaderEngine } from '../engine/grid-shader/GridShaderEngine'
-import { KaleidoscopeEngine } from '../engine/kaleidoscope/KaleidoscopeEngine'
 import { LabShaderEngine } from '../engine/lab/LabShaderEngine'
 import { LaunchShaderEngine } from '../engine/launch/LaunchShaderEngine'
 import { PhosphorShaderEngine } from '../engine/phosphor/PhosphorShaderEngine'
@@ -83,9 +82,4 @@ export const useFirefliesBackground = createBackgroundEngineHook(
 export const useCollectiveTrajectoriesBackground = createBackgroundEngineHook(
   CollectiveTrajectoriesEngine,
   'CollectiveTrajectoriesEngine',
-)
-
-export const useKaleidoscopeBackground = createBackgroundEngineHook(
-  KaleidoscopeEngine,
-  'KaleidoscopeEngine',
 )

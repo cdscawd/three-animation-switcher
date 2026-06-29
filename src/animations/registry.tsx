@@ -5,7 +5,6 @@ import { CollectiveTrajectoriesBackground } from '../components/CollectiveTrajec
 import { FirefliesBackground } from '../components/FirefliesBackground/FirefliesBackground'
 import { CyberspaceBackground } from '../components/CyberspaceBackground/CyberspaceBackground'
 import { GridShaderBackground } from '../components/GridShaderBackground/GridShaderBackground'
-import { KaleidoscopeBackground } from '../components/KaleidoscopeBackground/KaleidoscopeBackground'
 import { LabBackground } from '../components/LabBackground/LabBackground'
 import { LaunchBackground } from '../components/LaunchBackground/LaunchBackground'
 import { PhosphorBackground } from '../components/PhosphorBackground/PhosphorBackground'
@@ -101,12 +100,6 @@ export const ANIMATION_REGISTRY: AnimationDefinition[] = [
     label: 'Collective Trajectories',
     kind: 'three-scene',
     component: CollectiveTrajectoriesBackground,
-  },
-  {
-    id: 'kaleidoscope',
-    label: 'Kaleidoscope',
-    kind: 'three-shader',
-    component: KaleidoscopeBackground,
   },
 ]
 

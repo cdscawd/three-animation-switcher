@@ -15,7 +15,6 @@ export const ANIMATIONS = [
   { id: 'grid-shader', label: 'Grid Shader' },
   { id: 'fireflies', label: 'Fireflies' },
   { id: 'collective-trajectories', label: 'Collective Trajectories' },
-  { id: 'kaleidoscope', label: 'Kaleidoscope' },
 ] as const
 
 export type AnimationId = (typeof ANIMATIONS)[number]['id']
